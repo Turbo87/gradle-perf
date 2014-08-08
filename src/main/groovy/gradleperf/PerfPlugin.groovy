@@ -13,14 +13,13 @@ class PerfPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
+            perfCompile project
             perfCompile 'org.openjdk.jmh:jmh-generator-annprocess:0.9.5'
         }
 
         project.tasks.create(name: 'perf', type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
             main = 'org.openjdk.jmh.Main'
-
-            classpath += project.sourceSets.main.runtimeClasspath
-            classpath += project.sourceSets.perf.runtimeClasspath
+            classpath = project.sourceSets.perf.runtimeClasspath
         }
 
         project.gradle.projectsEvaluated {
