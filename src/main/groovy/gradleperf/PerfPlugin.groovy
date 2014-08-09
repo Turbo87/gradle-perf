@@ -26,10 +26,17 @@ public class PerfPlugin implements Plugin<Project> {
 
         project.gradle.projectsEvaluated {
             tasks.each { task ->
-                def taskName = (task.name == DEFAULT_TASK_NAME) ?
-                        'perf' : ('perf' + task.name[0].toUpperCase() + task.name.substring(1))
-                
+                def taskName = 'perf', taskDescription
+
+                if (task.name == DEFAULT_TASK_NAME) {
+                    taskDescription = 'Runs the performance benchmarks.'
+                } else {
+                    taskName += task.name[0].toUpperCase() + task.name.substring(1)
+                    taskDescription = 'Runs the ' + task.name + ' performance benchmarks.'
+                }
+
                 project.tasks.create(name: taskName, type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
+                    description = taskDescription
                     main = 'org.openjdk.jmh.Main'
                     classpath = project.sourceSets.perf.runtimeClasspath
                     args = [*args, *task.args]
