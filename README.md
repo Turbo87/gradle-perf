@@ -63,6 +63,14 @@ perfSimple - Runs the simple performance benchmarks.
 ...
 ```
 
+
+## Similar Projects
+
+* [melix/jmh-gradle-plugin](https://github.com/melix/jmh-gradle-plugin)
+
+    This plugin is mostly similar, but is using a 'fat jar' approach to run JMH.
+
+
 ## License 
 
 gradle-perf is free software, and may be redistributed under the Apache license v2.0. (see [LICENSE](LICENSE))
