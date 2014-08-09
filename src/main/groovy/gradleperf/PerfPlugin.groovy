@@ -5,10 +5,15 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 
 public class PerfPlugin implements Plugin<Project> {
+    private static final String DEFAULT_TASK_NAME = 'default';
+
     void apply(Project project) {
         project.plugins.apply('java')
 
-        def extension = project.extensions.create('perf', Extension)
+        def tasks = project.container(Task)
+        tasks.create(DEFAULT_TASK_NAME)
+
+        project.extensions.perf = tasks
 
         project.sourceSets {
             perf
@@ -19,16 +24,18 @@ public class PerfPlugin implements Plugin<Project> {
             perfCompile 'org.openjdk.jmh:jmh-generator-annprocess:0.9.5'
         }
 
-        project.tasks.create(name: 'perf', type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
-            main = 'org.openjdk.jmh.Main'
-            classpath = project.sourceSets.perf.runtimeClasspath
-
-            doFirst {
-                args = [*args, *extension.args]
-            }
-        }
-
         project.gradle.projectsEvaluated {
+            tasks.each { task ->
+                def taskName = (task.name == DEFAULT_TASK_NAME) ?
+                        'perf' : ('perf' + task.name[0].toUpperCase() + task.name.substring(1))
+                
+                project.tasks.create(name: taskName, type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
+                    main = 'org.openjdk.jmh.Main'
+                    classpath = project.sourceSets.perf.runtimeClasspath
+                    args = [*args, *task.args]
+                }
+            }
+
             // configure IntelliJ IDEA plugin if it exists
             project.extensions.findByName('idea')?.module {
                 // declare the 'perf' sources as test sources
@@ -47,7 +54,12 @@ public class PerfPlugin implements Plugin<Project> {
         }
     }
 
-    public static class Extension {
-        def List<String> args = []
+    public static class Task {
+        final String name
+        List<String> args = []
+
+        Task(String name) {
+            this.name = name
+        }
     }
 }
