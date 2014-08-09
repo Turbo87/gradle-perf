@@ -19,10 +19,36 @@ dependencies {
     compile localGroovy()
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    group = 'build'
+    description = 'Assembles a jar archive containing the main sources.'
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    group = 'build'
+    description = 'Assembles a jar archive containing the javadocs.'
+    classifier = 'javadoc'
+    from javadoc.getDestinationDir()
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+
+            artifact sourcesJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
         }
     }
 }
