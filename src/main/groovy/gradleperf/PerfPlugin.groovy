@@ -10,24 +10,31 @@ public class PerfPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply('java')
 
+        // create a 'perf' container with a 'default' task
         def tasks = project.container(Task)
         tasks.create(DEFAULT_TASK_NAME)
 
         project.extensions.perf = tasks
 
+        // create a 'perf' source set that holds the benchmark code
         project.sourceSets {
             perf
         }
 
+        // set the benchmark dependencies
         project.dependencies {
             perfCompile project
             perfCompile 'org.openjdk.jmh:jmh-generator-annprocess:0.9.5'
         }
 
+        // after the user buildscript is evaluated ...
         project.gradle.projectsEvaluated {
-            tasks.each { task ->
-                def taskName = 'perf', taskDescription
 
+            // create the 'perf...' tasks
+            tasks.each { task ->
+
+                // determine the task name and description
+                def taskName = 'perf', taskDescription
                 if (task.name == DEFAULT_TASK_NAME) {
                     taskDescription = 'Runs the performance benchmarks.'
                 } else {
@@ -35,6 +42,7 @@ public class PerfPlugin implements Plugin<Project> {
                     taskDescription = 'Runs the ' + task.name + ' performance benchmarks.'
                 }
 
+                // create the task
                 project.tasks.create(name: taskName, type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
                     description = taskDescription
                     group = 'benchmark'
