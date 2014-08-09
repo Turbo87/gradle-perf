@@ -8,6 +8,8 @@ public class PerfPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply('java')
 
+        def extension = project.extensions.create('perf', Extension)
+
         project.sourceSets {
             perf
         }
@@ -20,6 +22,10 @@ public class PerfPlugin implements Plugin<Project> {
         project.tasks.create(name: 'perf', type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
             main = 'org.openjdk.jmh.Main'
             classpath = project.sourceSets.perf.runtimeClasspath
+
+            doFirst {
+                args = [*args, *extension.args]
+            }
         }
 
         project.gradle.projectsEvaluated {
@@ -39,5 +45,9 @@ public class PerfPlugin implements Plugin<Project> {
                 plusConfigurations += project.configurations.perfCompile
             }
         }
+    }
+
+    public static class Extension {
+        def List<String> args = []
     }
 }
