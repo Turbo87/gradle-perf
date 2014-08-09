@@ -37,6 +37,8 @@ public class PerfPlugin implements Plugin<Project> {
 
                 project.tasks.create(name: taskName, type: JavaExec, dependsOn: [project.tasks.classes, project.tasks.perfClasses]) {
                     description = taskDescription
+                    group = 'benchmark'
+
                     main = 'org.openjdk.jmh.Main'
                     classpath = project.sourceSets.perf.runtimeClasspath
                     args = [*args, *task.args]
