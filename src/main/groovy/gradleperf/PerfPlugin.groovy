@@ -4,7 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 
-class PerfPlugin implements Plugin<Project> {
+public class PerfPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply('java')
 
